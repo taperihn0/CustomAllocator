@@ -10,3 +10,5 @@
 #ifndef CACHELINE_SIZE
 #	define CACHELINE_SIZE sysconf(_SC_LEVEL1_DCACHE_LINESIZE)
 #endif
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
