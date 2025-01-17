@@ -1,5 +1,7 @@
 #pragma once
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define BYTE char
 
@@ -12,3 +14,11 @@
 #endif
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+inline int _assert_error_terminate(const char* err) {
+	printf("%s\n", err);
+	exit(1);
+	return 1;
+}
+
+#define ASSERT(val, err) (void)((val) || _assert_error_terminate((err)))
