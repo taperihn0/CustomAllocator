@@ -12,11 +12,15 @@ void create_chunk_list(Pool* pool) {
 }
 
 void pool_init_copy(Pool* pool, void* buffer, size_t size, size_t chunk_size) {
+	_assert_buffer_validity(buffer, size);
+
 	pool_prealloc(pool, size, chunk_size);
 	memcpy(pool->pbuff, buffer, size);
 }
 
 void pool_init_external(Pool* pool, void* buffer, size_t size, size_t chunk_size) {
+	_assert_buffer_validity(buffer, size);
+
 	pool->pbuff = (BYTE*)buffer;
 	pool->length = size;
 	pool->chunk_size = chunk_size;

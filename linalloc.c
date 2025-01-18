@@ -2,11 +2,15 @@
 #include <sys/mman.h>
 
 void arena_init_copy(Arena* arena, void* buffer, size_t size) {
+	_assert_buffer_validity(buffer, size);
+	
 	arena_prealloc(arena, size);
 	memcpy(arena->pbuff, buffer, size);
 }
 
 void arena_init_external(Arena* arena, void* buffer, size_t size) {
+	_assert_buffer_validity(buffer, size);
+
 	arena->pbuff = (BYTE*)buffer;
 	arena->offset = 0;
 	arena->length = size;

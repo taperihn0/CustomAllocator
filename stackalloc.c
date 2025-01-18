@@ -6,11 +6,15 @@ typedef struct _AllocHeader {
 } Header;
 
 void stack_init_copy(Stack* stack, void* buffer, size_t size) {
+	_assert_buffer_validity(buffer, size);
+
 	stack_prealloc(stack, size);
 	memcpy(stack->pbuff, buffer, size);
 }
 
 void stack_init_external(Stack* stack, void* buffer, size_t size) {
+	_assert_buffer_validity(buffer, size);
+
 	stack->pbuff = (BYTE*)buffer;
 	stack->length = size;
 	stack->offset = 0;
