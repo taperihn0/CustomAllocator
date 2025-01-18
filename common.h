@@ -14,6 +14,10 @@
 #	define CACHELINE_SIZE sysconf(_SC_LEVEL1_DCACHE_LINESIZE)
 #endif
 
+#ifndef UINT
+#	define UINT unsigned int
+#endif
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 inline int _assert_error_terminate(const char* err) {

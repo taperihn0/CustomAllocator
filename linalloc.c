@@ -1,14 +1,19 @@
 #include "linalloc.h"
 #include <sys/mman.h>
 
-void arena_init(Arena* arena, void* buffer, size_t size) {
+void arena_init_copy(Arena* arena, void* buffer, size_t size) {
+	arena_prealloc(arena, size);
+	memcpy(arena->pbuff, buffer, size);
+}
+
+void arena_init_external(Arena* arena, void* buffer, size_t size) {
 	arena->pbuff = (BYTE*)buffer;
 	arena->offset = 0;
 	arena->length = size;
 	arena->prev_offset = 0;
 }
 
-void prealloc_arena(Arena* arena, size_t size) {
+void arena_prealloc(Arena* arena, size_t size) {
 	arena->pbuff = mmap(NULL, size, 
 						PROT_READ | PROT_WRITE, 
 						MAP_PRIVATE | MAP_ANON,
@@ -17,12 +22,12 @@ void prealloc_arena(Arena* arena, size_t size) {
 	arena->length = size;
 }
 
-void free_arena_all(Arena* arena) {
+void arena_free_all(Arena* arena) {
 	munmap(arena->pbuff, arena->length);
 	memset(arena, 0, sizeof(Arena));
 }
 
-void free_arena_state(Arena* arena) {
+void arena_free_state(Arena* arena) {
 	arena->offset = 0;
 	arena->prev_offset = 0;
 }

@@ -1,16 +1,18 @@
 #include "linalloc.h"
 #include "stackalloc.h"
+#include "poolalloc.h"
 
 int main() {	
-	Stack* stack = malloc(sizeof(Stack));
+	Pool* pool = malloc(sizeof(Pool));
 	
-	stack_prealloc(stack, _STACK_PREALLOC_SIZE);
+	pool_prealloc(pool, _POOL_PREALLOC_SIZE, 8);
 	
-	int* p = stack_alloc(stack, _STACK_PREALLOC_SIZE - DEFAULT_ALIGNMENT - 1);
+	int* p = (int*)pool_alloc(pool);
 
 	*p = 1;
+	*(p + 1) = 2;
 
-	free_stack_all(stack);
+	pool_free_all(pool);
 
-	free(stack);
+	free(pool);
 }

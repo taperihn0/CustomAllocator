@@ -5,7 +5,12 @@ typedef struct _AllocHeader {
 	uint8_t alignment;
 } Header;
 
-void stack_init(Stack* stack, void* buffer, size_t size) {
+void stack_init_copy(Stack* stack, void* buffer, size_t size) {
+	stack_prealloc(stack, size);
+	memcpy(stack->pbuff, buffer, size);
+}
+
+void stack_init_external(Stack* stack, void* buffer, size_t size) {
 	stack->pbuff = (BYTE*)buffer;
 	stack->length = size;
 	stack->offset = 0;
@@ -20,7 +25,7 @@ void stack_prealloc(Stack* stack, size_t size) {
 	stack->length = size;
 }
 
-void free_stack_all(Stack* stack) {
+void stack_free_all(Stack* stack) {
 	munmap(stack->pbuff, stack->length);
 	memset(stack, 0, sizeof(Stack));
 }
@@ -30,7 +35,7 @@ size_t align_offset_forward(size_t offset) {
 	return offset + (DEFAULT_ALIGNMENT - mod);
 }
 
-void free_stack(Stack* stack, void* ptr) {
+void stack_free(Stack* stack, void* ptr) {
 	if (ptr == NULL || !(stack->pbuff <= (BYTE*)ptr && (BYTE*)ptr < stack->pbuff + stack->length))
 		return;
 

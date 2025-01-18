@@ -12,10 +12,11 @@ typedef struct _Arena {
 	size_t prev_offset;
 } Arena;
 
-void arena_init(Arena* arena, void* buffer, size_t size);
-void prealloc_arena(Arena* arena, size_t size);
-void free_arena_all(Arena* arena);
-void free_arena_state(Arena* arena);
+void arena_init_copy(Arena* arena, void* buffer, size_t size);
+void arena_init_external(Arena* arena, void* buffer, size_t size);
+void arena_prealloc(Arena* arena, size_t size);
+void arena_free_all(Arena* arena);
+void arena_free_state(Arena* arena);
 
 void* arena_alloc(Arena* arena, size_t size);
 void* arena_realloc(Arena* arena, void* ptr, size_t old_size, size_t new_size);
