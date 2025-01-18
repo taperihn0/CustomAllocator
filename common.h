@@ -4,6 +4,16 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+#	ifdef _MSC_VER
+#		define INLINE __forceinline
+#	else
+#		define INLINE inline
+#	endif
+#else
+#	define INLINE inline
+#endif
+
 #define BYTE char
 
 #ifndef DEFAULT_ALIGNMENT
@@ -20,7 +30,7 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-static inline int _assert_error_terminate(const char* err) {
+static INLINE int _assert_error_terminate(const char* err) {
 	printf("%s\n", err);
 	exit(1);
 	return 1;
@@ -28,6 +38,6 @@ static inline int _assert_error_terminate(const char* err) {
 
 #define ASSERT(val, err) (void)((val) || _assert_error_terminate((err)))
 
-static inline void _assert_buffer_validity(void* buffer, size_t size) {
+static INLINE void _assert_buffer_validity(void* buffer, size_t size) {
 	ASSERT(buffer != NULL && size > 0, "Invalid buffer");
 }
