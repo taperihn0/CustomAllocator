@@ -1,8 +1,16 @@
 #include "linalloc.h"
-#include <stdio.h>
+#include "stackalloc.h"
 
 int main() {	
-	Arena arena;
-	prealloc_arena(&arena, _ARENA_PREALLOC_DEFAULT_SIZE);
-	free_arena_all(&arena);
+	Stack* stack = malloc(sizeof(Stack));
+	
+	stack_prealloc(stack, _STACK_PREALLOC_SIZE);
+	
+	int* p = stack_alloc(stack, _STACK_PREALLOC_SIZE - DEFAULT_ALIGNMENT - 1);
+
+	*p = 1;
+
+	free_stack_all(stack);
+
+	free(stack);
 }

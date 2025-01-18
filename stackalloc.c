@@ -1,4 +1,5 @@
 #include "stackalloc.h"
+#include <sys/mman.h>
 
 typedef struct _AllocHeader {
 	uint8_t alignment;
@@ -24,7 +25,7 @@ void free_stack_all(Stack* stack) {
 	memset(stack, 0, sizeof(Stack));
 }
 
-size_t align_offset(size_t offset) {
+size_t align_offset_forward(size_t offset) {
 	size_t mod = offset & (DEFAULT_ALIGNMENT - 1);
 	return offset + (DEFAULT_ALIGNMENT - mod);
 }
@@ -33,45 +34,54 @@ void free_stack(Stack* stack, void* ptr) {
 	if (ptr == NULL || !(stack->pbuff <= (BYTE*)ptr && (BYTE*)ptr < stack->pbuff + stack->length))
 		return;
 
-	ASSERT(sizeof(Header) == sizeof(BYTE));
+	ASSERT(sizeof(Header) == sizeof(BYTE), "Supporting only 1-byte header");
 
 	BYTE* fptr = (BYTE*)ptr;
 	size_t curr_offset = fptr - stack->pbuff;
 	
-	Header* header = (Header*)(stack->bpuff + curr_offset - 1);
+	Header* header = (Header*)(stack->pbuff + curr_offset - 1);
+
+	size_t new_offset = curr_offset - 1 - header->alignment;
 	
-	stack->offset = curr_offset - 1 - header->alignment;
+	if (new_offset <= DEFAULT_ALIGNMENT)
+		return; 
+
+	stack->offset = new_offset;
 }
 
 void* stack_alloc(Stack* stack, size_t size) {
-	if (stack->offset + size >= stack->length || size == 0)
+	if (size == 0)
 		return NULL;
 
-	ASSERT(sizeof(Header) == sizeof(BYTE));
+	ASSERT(sizeof(Header) == sizeof(BYTE), "Supporting only 1-byte header");
 
-	size_t aligned_offset = align_offset(stack->offset);
+	size_t aligned_offset = align_offset_forward(stack->offset);
+
+	if (aligned_offset + size >= stack->length)
+		return NULL;
 
 	Header* header = (Header*)(stack->pbuff + aligned_offset - 1);
 	header->alignment = aligned_offset - stack->offset - 1;
 	
 	stack->offset = aligned_offset + size;
 
-	return stack->pbuff + aligned_offset;
+	return (void*)(stack->pbuff + aligned_offset);
 }
 
 void* stack_realloc(Stack* stack, void* ptr, size_t old_size, size_t new_size) {
+	if (ptr == NULL || new_size == 0)
+		return NULL;
+
 	BYTE* old_mem = (BYTE*)ptr;
 
-	if (old_mem == NULL || new_size == 0)
-		return NULL;
-	else if (stack->pbuff <= old_mem && old_mem < stack->pbuff + stack->offset) {
+	if (stack->pbuff + DEFAULT_ALIGNMENT <= old_mem && old_mem < stack->pbuff + stack->offset) {
 		BYTE* new_mem = (BYTE*)stack_alloc(stack, new_size);
 	
 		if (new_mem == NULL)
 			return NULL;
 
 		size_t cp_size = MIN(new_size, old_size);
-		memmove(new_mem, old_mem, cp_size);
+		memcpy(new_mem, old_mem, cp_size);
 		return (void*)new_mem;
 	} 
 
